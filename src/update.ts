@@ -2,6 +2,7 @@ import { appendFile } from "node:fs/promises";
 import path from "node:path";
 import { GAMES, type Game } from "./config";
 import { exportGame } from "./export";
+import { stackGemStrips } from "./gems";
 import { buildMap } from "./map";
 import { exportSockets } from "./sockets";
 import { publish } from "./upload";
@@ -41,6 +42,7 @@ for (const { game, version } of stale) {
     const run = await exportGame(game, version, dir);
     console.log(`${game}: exported in ${run.seconds}s, ${run.downloads} CDN bundles`);
   }
+  if (game === "poe1") console.log(`${game}: stacked ${await stackGemStrips(dir)} gem images`);
   const sockets = await exportSockets(game, version, dir);
   const { map, files, missing } = await buildMap(game, version, dir, sockets);
   console.log(
