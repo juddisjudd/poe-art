@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: update
@@ -30,6 +31,12 @@ jobs:
       DAT_SCHEMA: /tmp/schema.min.json
       FORCE: ${{ inputs.force && '--force' || '' }}
     steps:
+      # GitHub disables schedules in public repos after 60 days without commits; enabling resets that clock.
+      - name: Keep the schedule enabled
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/update.yml/enable"
+
       - uses: actions/checkout@v7
 
       - uses: oven-sh/setup-bun@v2
