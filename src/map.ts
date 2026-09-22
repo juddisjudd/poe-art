@@ -16,6 +16,8 @@ interface Row {
   release_state?: string;
   is_alternate_art?: boolean;
   visual_identity?: { dds_file?: string };
+  skill_name?: string;
+  base_item?: { id?: string };
 }
 
 interface Overrides {
@@ -70,6 +72,15 @@ export async function buildMap(game: Game, version: string, dir: string, sockets
   const overridesFile = Bun.file(`overrides/${game}.json`);
   const overrides: Overrides = (await overridesFile.exists()) ? await overridesFile.json() : {};
   const byId = new Map(baseRows);
+  if (game === "poe1") {
+    const gemRows = await rows(path.join(dir, "skill_gems.min.json"));
+    for (const [, gem] of gemRows) {
+      if (!gem.skill_name || bases.has(gem.skill_name)) continue;
+      const dds = gem.base_item?.id && byId.get(gem.base_item.id)?.visual_identity?.dds_file;
+      const image = dds && (await art(dds));
+      if (image) bases.set(gem.skill_name, image);
+    }
+  }
   for (const [name, id] of Object.entries(overrides.bases ?? {})) {
     const dds = byId.get(id)?.visual_identity?.dds_file;
     const image = dds && (await art(dds));
