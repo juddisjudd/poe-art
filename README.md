@@ -3,27 +3,38 @@
 Item art for Path of Exile 1 and 2, taken from each game patch and served from `https://art.pobredux.com`.
 
 A scheduled workflow asks GGG's patch servers for the current version of each game. When a game has a new
-patch, it exports the item tables and item art from the patch CDN with
-[ggpk-explorer](https://github.com/juddisjudd/ggpk-explorer), uploads new images to the `poe-art` R2 bucket,
-and commits the new map to `maps/`.
+patch, it exports the item tables, item art and socket art from the patch CDN with
+[ggpk-explorer](https://github.com/juddisjudd/ggpk-explorer), uploads new and changed images to the `poe-art`
+R2 bucket, and commits the new map to `maps/`.
 
 ## Maps
 
-`maps/poe1.json` and `maps/poe2.json` map English item names to image hashes:
+`maps/poe1.json` and `maps/poe2.json` map English item names to the game's own art paths:
 
 ```json
 {
   "game": "poe2",
   "version": "4.5.5.3",
-  "images": "https://art.pobredux.com/img/",
-  "bases": { "Conqueror Plate": "…" },
-  "uniques": { "Astramentis": "…" }
+  "images": "https://art.pobredux.com/poe2/",
+  "bases": { "Amethyst Ring": "Art/2DItems/Rings/Basetypes/AmethystRing.webp" },
+  "uniques": { "Astramentis": "Art/2DItems/Amulets/Uniques/Astramentis.webp" },
+  "sockets": { "red": "Art/2DArt/UIImages/InGame/4K/ItemsSocketRed.webp" },
+  "files": { "Art/2DItems/Rings/Basetypes/AmethystRing.webp": "3f9a1c2b" }
 }
 ```
 
-An image URL is `images + hash + ".webp"`. Look a unique up in `uniques` first and fall back to its base type
-in `bases`. Runeforged and Runemastered bases are in `bases` with the art of their plain base. Gems are base
-items, so they are in `bases` too.
+An image URL is `images + path + "?v=" + files[path]`. The bucket stores each image at `<game>/<path>`, and
+`files` gives each path a tag that changes when GGG changes the art, so caches never serve an old image.
+
+Look a unique up in `uniques` first and fall back to its base type in `bases`. Runeforged and Runemastered
+bases, gems, runes and soul cores are all in `bases`. Names with accents are also listed without them, so
+"Maelström Staff" is found as "Maelstrom Staff". `overrides/<game>.json` adds names the game does not use,
+such as PoB's "Energy Blade One Handed" and "Energy Blade Two Handed", by pointing them at a base item's
+metadata ID.
+
+`sockets` has the item socket art: `red`, `green`, `blue`, `white` and `link` in both games, `abyss` in PoE1,
+and `empty`, `rune` and `soulCore` augment sockets in PoE2. `src/config.ts` lists the UI sprites they come
+from; PoE1 sprites are cut out of the game's sprite sheets.
 
 The same map is published at `maps/<game>/<version>.json` and `maps/<game>/latest.json` on the art domain.
 Images and versioned maps are cached for a year; `latest.json` for five minutes.

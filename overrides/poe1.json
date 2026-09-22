@@ -1,0 +1,6 @@
+{
+  "bases": {
+    "Energy Blade One Handed": "Metadata/Items/Weapons/OneHandWeapons/OneHandSwords/StormBladeOneHand",
+    "Energy Blade Two Handed": "Metadata/Items/Weapons/TwoHandWeapons/TwoHandSwords/StormBladeTwoHand"
+  }
+}

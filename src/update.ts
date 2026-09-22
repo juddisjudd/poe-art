@@ -3,6 +3,7 @@ import path from "node:path";
 import { GAMES, type Game } from "./config";
 import { exportGame } from "./export";
 import { buildMap } from "./map";
+import { exportSockets } from "./sockets";
 import { publish } from "./upload";
 import { patchVersion } from "./version";
 
@@ -40,10 +41,11 @@ for (const { game, version } of stale) {
     const run = await exportGame(game, version, dir);
     console.log(`${game}: exported in ${run.seconds}s, ${run.downloads} CDN bundles`);
   }
-  const { map, files, missing } = await buildMap(game, version, dir);
+  const sockets = await exportSockets(game, version, dir);
+  const { map, files, missing } = await buildMap(game, version, dir, sockets);
   console.log(
     `${game}: ${Object.keys(map.bases).length} bases, ${Object.keys(map.uniques).length} uniques, ` +
-      `${files.size} images, ${missing.length} art files not exported`,
+      `${Object.keys(map.sockets).length} sockets, ${files.size} images, ${missing.length} art files not exported`,
   );
   const json = `${JSON.stringify(map, null, 1)}\n`;
   if (flag("--dry-run")) {
@@ -51,7 +53,7 @@ for (const { game, version } of stale) {
     continue;
   }
   const result = await publish(map, files);
-  console.log(`${game}: uploaded ${result.uploaded} images, ${result.reused} already in the bucket`);
+  console.log(`${game}: uploaded ${result.uploaded} images, ${result.unchanged} unchanged in the bucket`);
   await Bun.write(`maps/${game}.json`, json);
   done.push(`${game} ${version}`);
 }

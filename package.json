@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "aws4fetch": "1.0.20"
+    "aws4fetch": "1.0.20",
+    "sharp": "0.35.4"
   },
   "devDependencies": {
     "@types/bun": "1.4.2",
