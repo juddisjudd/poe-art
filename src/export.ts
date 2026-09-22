@@ -16,9 +16,10 @@ export async function exportGame(game: Game, version: string, out: string): Prom
   await rm(out, { recursive: true, force: true });
   await mkdir(out, { recursive: true });
   const started = performance.now();
+  const modules = game === "poe1" ? "base_items,uniques,skill_gems" : "base_items,uniques";
   const stdout = await explorer(
     [
-      "export-data", "--cdn", version, `--${game}`, "--only", "base_items,uniques",
+      "export-data", "--cdn", version, `--${game}`, "--only", modules,
       "--images", "--strip-null", "--flat", "-o", out, ...(SCHEMA ? ["--schema", SCHEMA] : []),
     ],
     path.join(out, "..", `${version}.log`),
